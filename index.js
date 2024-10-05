@@ -3,8 +3,8 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import foodRouter from "./routes/foodRouter.js";
-
 dotenv.config();
+
 const app = express();
 const port = process.env.PORT || 8000;
 
