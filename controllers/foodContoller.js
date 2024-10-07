@@ -12,21 +12,31 @@ const addFood = async (req, res) => {
   });
   try {
     await food.save();
-    res.json({ success: true, message: "Food Added" });
+    res.status(200).json({ success: true, message: "Food Added" });
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 const listFood = async (req, res) => {
   try {
     const foods = await foodModel.find({});
-    res.json({ succes: true, data: foods });
+    res.status(200).json({ succes: true, data: foods });
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-export { addFood, listFood };
+const removeFood = async (req, res) => {
+  try {
+    await foodModel.findByIdAndDelete(req.body.id);
+    res.status(200).json({ success: true, message: "Food Removed" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export { addFood, listFood, removeFood };
