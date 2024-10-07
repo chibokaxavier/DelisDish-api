@@ -25,6 +25,7 @@ const connectDb = async () => {
 };
 // middleware 
 app.use(express.json());
+app.use(cors(corsOption));
 app.use("/api/food", foodRouter);
 
 
