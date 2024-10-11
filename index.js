@@ -10,7 +10,7 @@ const port = process.env.PORT || 8000;
 
 const corsOption = {
   origin: [
-    "http://localhost:3000/", // or your specific localhost port
+    "http://localhost:3000", // or your specific localhost port
   ],
   credentials: true,
 };
