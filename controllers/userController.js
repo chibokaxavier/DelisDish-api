@@ -2,8 +2,35 @@ import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import validator from "validator";
+import { response } from "express";
 
-const loginUser = async (req, res) => {};
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid Credentials" });
+    }
+    const token = createToken(user._id);
+    const { password: pass, ...validUser } = user._doc;
+    res
+      .cookie("token", token, { httpOnly: true })
+      .status(200)
+      .json({ validUser });
+  } catch (error) {}
+};
+
+const createToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET);
+};
 
 const registerUser = async (req, res) => {
   const { email, password, name } = req.body;
@@ -34,7 +61,12 @@ const registerUser = async (req, res) => {
     });
 
     const user = await newUser.save();
-  } catch (error) {}
+    const token = createToken(user._id);
+    res.status(200).json({ success: true, token });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error" });
+  }
 };
 
 export { loginUser, registerUser };
