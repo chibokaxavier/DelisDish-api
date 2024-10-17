@@ -3,6 +3,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import foodRouter from "./routes/foodRouter.js";
+import userRouter from "./routes/userRouter.js";
 dotenv.config();
 
 const app = express();
@@ -27,6 +28,8 @@ const connectDb = async () => {
 app.use(express.json());
 app.use(cors(corsOption));
 app.use("/api/food", foodRouter);
+app.use("/api/user", userRouter);
+
 
 
 app.listen(port, () => {
