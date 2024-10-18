@@ -2,7 +2,6 @@ import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import validator from "validator";
-import { response } from "express";
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -22,10 +21,13 @@ const loginUser = async (req, res) => {
     const token = createToken(user._id);
     const { password: pass, ...validUser } = user._doc;
     res
-      .cookie("token", token, { httpOnly: true })
+      .cookie("token", token, { httpOnly: false })
       .status(200)
-      .json({ validUser,token });
-  } catch (error) {}
+      .json({ validUser, token, success: true, message: "Log in successful" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 const createToken = (id) => {
@@ -37,11 +39,13 @@ const registerUser = async (req, res) => {
   try {
     const exists = await userModel.findOne({ email });
     if (exists) {
-      res.status(500).json({ message: "User already exists", success: false });
+      return res
+        .status(500)
+        .json({ message: "User already exists", success: false });
     }
     if (!validator.isEmail(email)) {
       return res
-        .status(400)
+        .status(500)
         .json({ message: "Please enter a valid email", success: false });
     }
     if (password.length < 8) {
@@ -62,7 +66,9 @@ const registerUser = async (req, res) => {
 
     const user = await newUser.save();
     const token = createToken(user._id);
-    res.status(200).json({ success: true, token });
+    res
+      .status(200)
+      .json({ success: true, token, message: "User created successfully" });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "Error" });
