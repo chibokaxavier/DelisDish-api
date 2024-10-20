@@ -7,7 +7,7 @@ const userSchema = new Schema(
     password: { type: String, required: true },
     cartData: { type: Object, default: {} },
   },
-  { minimize: true }
+  { minimize: false }
 );
 
 const userModel = mongoose.model("user", userSchema);
