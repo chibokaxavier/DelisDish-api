@@ -29,14 +29,14 @@ const addToCart = async (req, res) => {
     }
 
     // Update the user's cartData
-    await userModel.findByIdAndUpdate(
+    const updatedCart = await userModel.findByIdAndUpdate(
       req.userId,
       { $set: { cartData } }, // Use $set to update only cartData
       { new: true }
     );
 
     // Send success response
-    res.json({ success: true, message: "Added to cart" });
+    res.json({ success: true, message: "Added to cart", data: updatedCart });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -44,46 +44,6 @@ const addToCart = async (req, res) => {
 };
 
 const removeFromCart = async (req, res) => {
-    try {
-      // Find the user by id
-      let userData = await userModel.findById(req.userId); // Use findById to match the userId correctly
-  
-      // Check if user exists
-      if (!userData) {
-        return res.json({ success: false, message: "User not found" });
-      }
-  
-      // Initialize cartData if not already initialized
-      let cartData = userData.cartData || {};
-  
-      // Check if the itemId exists in cartData
-      if (cartData[req.body.itemId] && cartData[req.body.itemId].quantity > 0) {
-        cartData[req.body.itemId].quantity -= 1; // Decrease the quantity
-  
-        // Remove the item if the quantity is now 0
-        if (cartData[req.body.itemId].quantity === 0) {
-          delete cartData[req.body.itemId]; // Completely remove the item
-        }
-      } else {
-        return res.json({ success: false, message: "Item not in cart or invalid quantity" });
-      }
-  
-      // Update the user's cartData
-      await userModel.findByIdAndUpdate(
-        req.userId,
-        { $set: { cartData } }, // Use $set to update only cartData
-        { new: true }
-      );
-  
-      // Send success response
-      res.json({ success: true, message: "Removed from cart" });
-    } catch (error) {
-      console.log(error);
-      res.json({ success: false, message: error.message });
-    }
-  };
-  
-const getCart = async (req, res) => {
   try {
     // Find the user by id
     let userData = await userModel.findById(req.userId); // Use findById to match the userId correctly
@@ -96,8 +56,55 @@ const getCart = async (req, res) => {
     // Initialize cartData if not already initialized
     let cartData = userData.cartData || {};
 
+    // Check if the itemId exists in cartData
+    if (cartData[req.body.itemId] && cartData[req.body.itemId].quantity > 0) {
+      cartData[req.body.itemId].quantity -= 1; // Decrease the quantity
+
+      // Remove the item if the quantity is now 0
+      if (cartData[req.body.itemId].quantity === 0) {
+        delete cartData[req.body.itemId]; // Completely remove the item
+      }
+    } else {
+      return res.json({
+        success: false,
+        message: "Item not in cart or invalid quantity",
+      });
+    }
+
+    // Update the user's cartData
+    const updatedCart = await userModel.findByIdAndUpdate(
+      req.userId,
+      { $set: { cartData } }, // Use $set to update only cartData
+      { new: true }
+    );
+
     // Send success response
-    res.json({ success: true, cartData });
+    res.json({
+      success: true,
+      message: "Removed from cart",
+      data: updatedCart,
+    });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};
+
+const getCart = async (req, res) => {
+  try {
+    // Find the user by id
+    let userData = await userModel.findById(req.userId); // Use findById to match the userId correctly
+
+    // Check if user exists
+    if (!userData) {
+      return res.json({ success: false, message: "User not found" }); 
+    }
+
+    // Initialize cartData if not already initialized
+    let cartData = userData.cartData || {};
+
+    // Send success response
+    res.json({ success: true, data: cartData });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "Error" });
