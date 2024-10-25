@@ -110,5 +110,30 @@ const getCart = async (req, res) => {
     res.json({ success: false, message: "Error" });
   }
 };
+const syncCart = async (req, res) => {
+  try {
+    const { cartItems } = req.body; // Get cart items from the request body
 
-export { addToCart, removeFromCart, getCart };
+    // Find the user by id
+    let userData = await userModel.findById(req.userId);
+
+    // Check if user exists
+    if (!userData) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    // Replace the user's cartData with the incoming cartItems
+    userData.cartData = cartItems; 
+
+    // Save the updated cart to the database
+    await userData.save();
+
+    // Return the updated cart back to the client
+    res.json({ success: true, data: userData.cartData });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Error syncing cart" });
+  }
+};
+
+export { addToCart, removeFromCart, getCart,syncCart };
