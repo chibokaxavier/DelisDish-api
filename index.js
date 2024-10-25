@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import foodRouter from "./routes/foodRouter.js";
 import userRouter from "./routes/userRouter.js";
 import cartRouter from "./routes/cartRouter.js";
+import orderRouter from "./routes/orderRouter.js";
 dotenv.config();
 
 const app = express();
@@ -32,6 +33,7 @@ app.use(cors(corsOption));
 app.use("/api/food", foodRouter);
 app.use("/api/user", userRouter);
 app.use("/api/cart", cartRouter);
+app.use("/api/order", orderRouter);
 
 app.listen(port, () => {
   connectDb();
