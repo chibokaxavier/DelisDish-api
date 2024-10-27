@@ -97,7 +97,7 @@ const getCart = async (req, res) => {
 
     // Check if user exists
     if (!userData) {
-      return res.json({ success: false, message: "User not found" }); 
+      return res.json({ success: false, message: "User not found" });
     }
 
     // Initialize cartData if not already initialized
@@ -123,7 +123,7 @@ const syncCart = async (req, res) => {
     }
 
     // Replace the user's cartData with the incoming cartItems
-    userData.cartData = cartItems; 
+    userData.cartData = cartItems;
 
     // Save the updated cart to the database
     await userData.save();
@@ -136,4 +136,4 @@ const syncCart = async (req, res) => {
   }
 };
 
-export { addToCart, removeFromCart, getCart,syncCart };
+export { addToCart, removeFromCart, getCart, syncCart };

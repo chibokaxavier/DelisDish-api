@@ -4,12 +4,19 @@ import orderModel from "../models/orderModel.js";
 import dotenv from "dotenv";
 dotenv.config();
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-const url = "http://localhost:3000";
+const url = "http://localhost:3000/";
 const placeOrder = async (req, res) => {
   try {
-    const user = await userModel.findById(req.userId);
+    const newOrder = new orderModel({
+      userId: req.userId,
+      items: req.body.items,
+      amount: req.body.amount,
+      address: req.body.address,
+    });
+    await newOrder.save();
+    await userModel.findByIdAndUpdate(req.userId, { cartData: {} });
 
     const line_items = req.body.items.map((item) => ({
       price_data: {
@@ -33,22 +40,12 @@ const placeOrder = async (req, res) => {
     });
 
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
       line_items: line_items,
       mode: "payment",
-      success_url: `${url}/checkout-success`,
-      cancel_url: `${url}/order`,
-      customer_email: user.email,
+      success_url: `${url}/verify?success=true&orderId=${newOrder._id}`,
+      cancel_url: `${url}/verify?success=false&orderId=${newOrder._id}`,
     });
-    const newOrder = new orderModel({
-      userId: req.userId,
-      items: req.body.items,
-      amount: req.body.amount,
-      address: req.body.address,
-    });
-    await newOrder.save();
-    await userModel.findByIdAndUpdate(req.userId, { cartData: {} });
-    res.json({ success: true, message: "Successfully paid", session });
+    res.json({ success: true, session_url: session.url });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "Error" });
