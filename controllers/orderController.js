@@ -5,12 +5,19 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
 const url = "http://localhost:3000";
+
 const placeOrder = async (req, res) => {
   try {
     const user = await userModel.findById(req.userId);
-
+    const newOrder = new orderModel({
+      userId: req.userId,
+      items: req.body.items,
+      amount: req.body.amount,
+      address: req.body.address,
+    });
+    await newOrder.save();
+    await userModel.findByIdAndUpdate(req.userId, { cartData: {} });
     const line_items = req.body.items.map((item) => ({
       price_data: {
         currency: "usd",
@@ -36,18 +43,11 @@ const placeOrder = async (req, res) => {
       payment_method_types: ["card"],
       line_items: line_items,
       mode: "payment",
-      success_url: `${url}/checkout-success`,
-      cancel_url: `${url}/order`,
+      success_url: `${url}/checkout-success/${newOrder._id}`,
+      cancel_url: `${url}/order/${newOrder._id}`,
       customer_email: user.email,
     });
-    const newOrder = new orderModel({
-      userId: req.userId,
-      items: req.body.items,
-      amount: req.body.amount,
-      address: req.body.address,
-    });
-    await newOrder.save();
-    await userModel.findByIdAndUpdate(req.userId, { cartData: {} });
+
     res.json({ success: true, message: "Successfully paid", session });
   } catch (error) {
     console.log(error);
@@ -55,4 +55,20 @@ const placeOrder = async (req, res) => {
   }
 };
 
-export { placeOrder };
+const verifyOrder = async (req, res) => {
+  const { orderId, success } = req.body;
+  try {
+    if (success) {
+      await orderModel.findByIdAndUpdate(orderId, { payment: true });
+      res.status(200).json({ success: true, message: "Payment successful" });
+    } else {
+       await orderModel.findByIdAndDelete(orderId);
+      res.status(200).json({ success: true, message: "Payment failed" });
+    }
+  } catch (error) {
+    console.log(error)
+    req.status(500).json({ success: false, message: "Error" });
+  }
+};
+
+export { placeOrder, verifyOrder };
