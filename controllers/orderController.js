@@ -44,7 +44,7 @@ const placeOrder = async (req, res) => {
       line_items: line_items,
       mode: "payment",
       success_url: `${url}/checkout-success/${newOrder._id}`,
-      cancel_url:  `${url}/checkout-failure/${newOrder._id}`,
+      cancel_url: `${url}/checkout-failure/${newOrder._id}`,
       customer_email: user.email,
     });
 
@@ -62,13 +62,23 @@ const verifyOrder = async (req, res) => {
       await orderModel.findByIdAndUpdate(orderId, { payment: true });
       res.status(200).json({ success: true, message: "Payment successful" });
     } else {
-       await orderModel.findByIdAndDelete(orderId);
+      await orderModel.findByIdAndDelete(orderId);
       res.status(200).json({ success: false, message: "Payment failed" });
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).json({ success: false, message: "Error" });
   }
 };
 
-export { placeOrder, verifyOrder };
+const fetchOrders = async (req, res) => {
+  try {
+    const orders = await orderModel.find({ userId: req.userId });
+    res.status(200).json({ success: true, data: orders });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Error" });
+  }
+};
+
+export { placeOrder, verifyOrder, fetchOrders };
