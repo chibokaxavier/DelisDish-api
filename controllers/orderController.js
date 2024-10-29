@@ -44,7 +44,7 @@ const placeOrder = async (req, res) => {
       line_items: line_items,
       mode: "payment",
       success_url: `${url}/checkout-success/${newOrder._id}`,
-      cancel_url: `${url}/order/${newOrder._id}`,
+      cancel_url:  `${url}/checkout-failure/${newOrder._id}`,
       customer_email: user.email,
     });
 
@@ -63,11 +63,11 @@ const verifyOrder = async (req, res) => {
       res.status(200).json({ success: true, message: "Payment successful" });
     } else {
        await orderModel.findByIdAndDelete(orderId);
-      res.status(200).json({ success: true, message: "Payment failed" });
+      res.status(200).json({ success: false, message: "Payment failed" });
     }
   } catch (error) {
     console.log(error)
-    req.status(500).json({ success: false, message: "Error" });
+    res.status(500).json({ success: false, message: "Error" });
   }
 };
 
