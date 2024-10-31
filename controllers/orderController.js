@@ -81,4 +81,13 @@ const fetchOrders = async (req, res) => {
   }
 };
 
-export { placeOrder, verifyOrder, fetchOrders };
+const listOrders = async () => {
+  try {
+    const orders = await orderModel.find({});
+    res.status(200).json({ success: true, data: orders });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Error" });
+  }
+};
+export { placeOrder, verifyOrder, fetchOrders, listOrders };
