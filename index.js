@@ -15,7 +15,7 @@ const corsOption = {
   origin: [
     "http://localhost:3000",
     "http://localhost:3001",
-    "https://delidish.vercel.ap",
+    "https://delidish.vercel.app",
     // or your specific localhost port
   ], 
   credentials: true,

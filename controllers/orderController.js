@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-const url = "http://localhost:3000";
+const url = "https://delidish.vercel.app";
 
 const placeOrder = async (req, res) => {
   try {
