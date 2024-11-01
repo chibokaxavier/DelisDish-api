@@ -73,7 +73,7 @@ const verifyOrder = async (req, res) => {
 
 const fetchOrders = async (req, res) => {
   try {
-    const orders = await orderModel.find({ userId: req.userId });
+    const orders = await orderModel.find({ userId: req.userId, payment: true });
     res.status(200).json({ success: true, data: orders });
   } catch (error) {
     console.log(error);
@@ -101,5 +101,5 @@ const updateStatus = async (req, res) => {
     console.log(error);
     res.status(500).json({ success: false, message: "Error" });
   }
-}; 
-export { placeOrder, verifyOrder, fetchOrders, listOrders,updateStatus };
+};
+export { placeOrder, verifyOrder, fetchOrders, listOrders, updateStatus };
